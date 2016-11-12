@@ -1,6 +1,7 @@
 var entry=[];//全局变量，保存每一单的餐名和价格
 var deliveryCharge=2.5;//默认送餐费
 var address="";
+//var editFlag=1; // =1 时，默认询问是否删除，还是修改。
 $(function () {
 	//alert("occcc.");
 	var dt = new Date();
@@ -72,22 +73,47 @@ function orderEntry(entry)
 			background='';
 		}
 		dishEntry +='<div id="entry-'+index+'" class="row'+background+'">\
-					<div class="col-sm-7" style="padding:0 0;" id="dishName-'+index+'" onclick="entryAction(this.id)">' + entry[index].dish_name +
+					<div class="col-sm-7" id="dishName-'+index+'" onclick="entryAction(this.id,'+index+')"><span id="trashIcon" class="icon-trash red"></span> ' + entry[index].dish_name +
 					'</div>\
-					<div class="col-sm-2" id="dishQty-'+index+'" onclick="entryAction(this.id)" style="padding:0 0;text-align:center;">' + entry[index].dish_qty +
+					<div class="col-sm-2" id="dishQty-'+index+'" onclick="entryEdit(this.id)" style="padding:0 0;text-align:center;">' + entry[index].dish_qty +
 					'</div>\
-					<div class="col-sm-3" style="padding:0 0;text-align:right;">£' + entry[index].dish_price.toFixed(2) +
+					<div class="col-sm-3" style="text-align:right;">£' + entry[index].dish_price.toFixed(2) +
 					'</div></div>';
 	});
 	return dishEntry;
 } 
+
 //当点击每一条记录时，的操作。
-function entryAction(id)
+function entryAction(ele_id,index)
 {
-	//alert("Edit or Delete? You clicked id= "+ id);
-	$("#"+id).attr('contenteditable',true);
+	console.log("element ID: "+ele_id+" , Index: "+ index);
+	var entryContent= $("#entry-"+index).text().replace(/\s+/g, ', ');//replace(/^\s+|\s+$/gm,'');
+	entryContent=entryContent.replace(/,/g, ' ');	
+	console.log(entryContent);
+	var r = confirm(entryContent+"\n\nPress [OK] to delete, or Press [Cancel] to Edit.\n请点击 [OK] 删除这条记录，或点击 [Cancel] 修改这条记录。");
+	if (r == true) 
+	{
+		delete1Entry('entry-'+index);
+	} 
+	else 
+	{
+		$("#"+ele_id).attr('contenteditable',true);
+		$("#"+ele_id).focus();			
+	}
+ 	
 }
 
+//当点击每一条记录时，修改操作。
+function entryEdit(ele_id)
+{
+	$("#"+ele_id).attr('contenteditable',true);
+}
+
+//删除一条记录
+function delete1Entry(id)
+{
+	$("#"+id).attr('style','display:none;');
+}
 
 //计算1张单的总价格
 function totalPrice(entry)

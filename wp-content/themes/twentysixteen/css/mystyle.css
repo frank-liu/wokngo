@@ -3,7 +3,9 @@
 [class^="dishName-"],{ 
     padding: 0 0; 
 } */
-
+.red{
+	color:red;
+}
 .bgcolor
 {
 	background-color:#eee!important;
@@ -69,6 +71,9 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 @media print {
 
 	#checkOut{
+		display: none;
+	}
+	#trashIcon{
 		display: none;
 	}
 	[class*="col-sm-"] {
@@ -167,7 +172,7 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 	.container {
 		/* width: auto;
 		min-width: 750px; */
-		width: 75mm;/*制定热敏打印纸的宽度*/
+		width: 78mm;/*制定热敏打印纸的宽度*/
 	}
 
 	body {
