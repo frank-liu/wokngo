@@ -59,22 +59,37 @@ function addOrder(title,dishPrice)
 
  
 
-//生成order到sider
+//生成1行order记录到sider
 function orderEntry(entry)
 {
 	var dishEntry = '';
 	$(entry).each(function(index){
-		dishEntry +='<div class="row"><div class="col-sm-7">' + entry[index].dish_name +
+		if(index%2===0)
+		{
+			background=" bgcolor";//leave space ahead
+		}
+		else{
+			background='';
+		}
+		dishEntry +='<div id="entry-'+index+'" class="row'+background+'">\
+					<div class="col-sm-7" style="padding:0 0;" id="dishName-'+index+'" onclick="entryAction(this.id)">' + entry[index].dish_name +
 					'</div>\
-					<div class="col-sm-2" style="text-align:center;">' + entry[index].dish_qty +
+					<div class="col-sm-2" id="dishQty-'+index+'" onclick="entryAction(this.id)" style="padding:0 0;text-align:center;">' + entry[index].dish_qty +
 					'</div>\
-					<div class="col-sm-3" style="text-align:right;">£' + entry[index].dish_price.toFixed(2) +
+					<div class="col-sm-3" style="padding:0 0;text-align:right;">£' + entry[index].dish_price.toFixed(2) +
 					'</div></div>';
 	});
 	return dishEntry;
 } 
+//当点击每一条记录时，的操作。
+function entryAction(id)
+{
+	//alert("Edit or Delete? You clicked id= "+ id);
+	$("#"+id).attr('contenteditable',true);
+}
 
-//计算此单的总价格
+
+//计算1张单的总价格
 function totalPrice(entry)
 {
 	var sum = 0;
@@ -94,11 +109,11 @@ function totalPrice(entry)
 //添加运费按钮到order底部
 function delivery()
 {
-	var deliveryFee='<div class="row">\
+	var deliveryFee='<div id="deliveryChargeRow" class="row">\
 						<div class="col-sm-4">' +
 						'</div>\
 						<div class="col-sm-4" style="text-align:center; ">Delivery: </div>\
-						<div class="col-sm-4" style="text-align:right; ">£'+deliveryCharge.toFixed(2)+'</div>\
+						<div class="col-sm-4" id="deliveryCharge" style="text-align:right; ">£'+deliveryCharge.toFixed(2)+'</div>\
 					</div>';
 	return deliveryFee;
 } 

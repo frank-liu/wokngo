@@ -1,3 +1,14 @@
+
+/*begin with dishName-  
+[class^="dishName-"],{ 
+    padding: 0 0; 
+} */
+
+.bgcolor
+{
+	background-color:#eee!important;
+}
+
 .plusicon_green{
 	float: right;
 	color: green;
