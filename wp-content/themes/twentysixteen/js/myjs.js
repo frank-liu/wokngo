@@ -150,7 +150,7 @@ function delivery()
 function getAddress()
 {	
 	var houseNo=$("#houseNo").val();
-	var postcode=$("#postcode").val();
+	var postcode=$("#postcode").val()+",uk";
 	//alert(postcode);
 	var url="http://maps.googleapis.com/maps/api/geocode/json?address="+postcode+"&sensor=false";
 	
@@ -187,6 +187,9 @@ function addCheckout()
 {
 	var btn='<button  id="checkOutBtn" onclick="printOrder()" type="button" class="btn btn-success btn-xs">Check Out</button>';
 	var checkOut='<br/><div id="checkOut" class="row">'+ btn + '</div>';
+	
+	console.log("houseNo: "+$("#houseNo").val());
+	
 	return checkOut;
 }
 
@@ -194,10 +197,33 @@ function addCheckout()
 //打印sider的订单
 function printOrder()
 {
-	$("#enhancedtextwidget-2").printArea();
 	
-	//打印完之后，清空变量	
-	entry=[];
-	deliveryCharge=2.5;//默认送餐费
+	if(validation()===true)
+	{
+		$("#enhancedtextwidget-2").printArea();
+		//打印完之后，清空变量	
+		entry=[];
+		deliveryCharge=2.5;//默认送餐费
+	}
+	
 	
 }
+
+//检查客人地址电话是否填写完整
+function validation()
+{
+	if($("#houseNo").val()===''||$("#postcode").val()===''||$("#phone").val()==='')
+	{
+		//$("#houseNo").attr('style',"border:2px solid red;");
+		alert("Please fill in customer address, telephone number, and name. \n请填写客人信息。");
+		return false;
+	}
+	else{
+		getAddress();
+		return true;
+	}
+	
+	 
+}
+
+
