@@ -1,59 +1,68 @@
 var entry=[];//全局变量，保存每一单的餐名和价格
 var deliveryCharge=2.5;//默认送餐费
 var address="";
-//var editFlag=1; // =1 时，默认询问是否删除，还是修改。
+var sitin_enable=0; //座位单开单中，禁止其他下单方式。
+
 $(function () {
 	//alert("occcc.");
 	var dt = new Date();
 	var time = dt.toISOString();   
 	var orderID='<br/><span id="orderID" style="text-align:right;font-size:0.7em;" class="hidden"> #'+time+'</span>';
 	$(".widget-title a:last").append(orderID); 
+	
+	
 
 });
 
 function addOrder(title,dishPrice)
 {
 	
-	//先显示order ID
-	$("#orderID").attr('class',''); 
- 
-	var price=parseFloat((dishPrice).replace('£',''));
-	 
-	
-	//这里要把title存入一个数组，以判断将来有没有重复的单，如果有，合并，数量+1.
-	var row={
-		'dish_name':title,
-		'dish_qty':1,
-		'dish_price':price,
-	};
-	if(entry.length>0) //如果存在。
-	{   var sum_price=0;
-		$(entry).each(function(index){
-			if(entry[index].dish_name===title) //如果 找到相同的，自加。
-			{				
-				entry[index].dish_qty += 1;			 
-				entry[index].dish_price = parseFloat(entry[index].dish_price + price);
-			 
-				return false;
-			}
-			if(index==entry.length-1) //如果找到最后都没找到。
-			{
-				entry.push(row);
-			}
-		});
+		//先显示order ID
+		$("#orderID").attr('class',''); 	 
+		var price=parseFloat((dishPrice).replace('£',''));
+		
+		//这里要把title存入一个数组，以判断将来有没有重复的单，如果有，合并，数量+1.
+		var row={
+			'dish_name':title,
+			'dish_qty':1,
+			'dish_price':price,
+		};
+		if(entry.length>0) //如果存在。
+		{   var sum_price=0;
+			$(entry).each(function(index){
+				if(entry[index].dish_name===title) //如果 找到相同的，自加。
+				{				
+					entry[index].dish_qty += 1;			 
+					entry[index].dish_price = parseFloat(entry[index].dish_price + price);
+				 
+					return false;
+				}
+				if(index==entry.length-1) //如果找到最后都没找到。
+				{
+					entry.push(row);
+				}
+			});
+		}
+		else{
+			entry.push(row);
+		}
+		
+		//打印前让我先看看order变量里都有啥
+		console.log("打印前让我先看看变量里都有啥: ");
+		console.log(entry);
+		
+	if(sitin_enable===0)//没有座位单的情况，订单添加到侧边栏。
+	{
+		$("#sideer_order_title").attr('class','row');		
+		$("#order_cart").empty();
+		$("#order_cart").append(orderEntry(entry)).append('<hr/>').append(delivery()).append(totalPrice(entry)).append(addCheckout());
 	}
-	else{
-		entry.push(row);
+	else if(sitin_enable===1)//座位单开单中，订单添加到Modal中。
+	{
+		$("#modal-table-orders").empty();
+		$("#modal-table-orders").append(orderEntry(entry)).append('<hr/>').append(delivery()).append(totalPrice(entry)).append(addCheckout());
 	}
 	
-	//打印前让我先看看order变量里都有啥
-	console.log("打印前让我先看看变量里都有啥: ");
-	console.log(entry);
-
-	$("#sideer_order_title").attr('class','row');
-	
-    $("#order_cart").empty();
-	$("#order_cart").append(orderEntry(entry)).append('<hr/>').append(delivery()).append(totalPrice(entry)).append(addCheckout());
 	
 	return false;
 }
@@ -226,4 +235,19 @@ function validation()
 	 
 }
 
-
+//结算sit-in
+function table_checkout(clicked)
+{
+	sitin_enable=1;
+	$(clicked).css('filter','grayscale(0%)');//翻桌变亮
+	$(clicked).css('-webkit-filter', 'grayscale(0%)');//翻桌变亮 /* Safari 6.0 - 9.0 */
+	var tableNO=$(clicked).siblings().text();//桌号
+	$("#myModal").draggable({
+		handle: ".modal-header"
+	});
+	$('#myModal').modal('show');
+	 
+	$('#modal-table-num').text(tableNO);
+	
+	//sitin_enable=0; //座位单开单完毕。这个要写在close中
+}

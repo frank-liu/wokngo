@@ -28,8 +28,9 @@
 		<!--My css, js link Start-->
 		<link rel="stylesheet" href="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css">
 		<link href="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/css/mystyle.css" rel="stylesheet" type="text/css"/> 
-		<!-- my js script --->		
+		<!-- my js script --->		 
 		<script src="https://ajax.googleapis.com/ajax/libs/jquery/1.12.2/jquery.min.js"></script>
+		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 		<script src="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/myjs.js" type="text/javascript"></script>
 		<script src="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/myjs.js" type="text/javascript"></script>

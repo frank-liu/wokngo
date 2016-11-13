@@ -11,6 +11,17 @@
 	background-color:#eee!important;
 }
 
+.table_label {
+    font-size: 1.5em;
+    margin: 0 1.5em;
+    position: absolute;
+    z-index: 1; 
+    background: green;
+    color: white;
+    width: 2em;
+    text-align: center;
+}
+
 .plusicon_green{
 	float: right;
 	color: green;
@@ -50,6 +61,29 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 	font-size; 1.3em;
 	font-weight:600;
 }
+
+/*使桌子变灰*/
+.tableimg {
+    -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
+    filter: grayscale(100%);
+}
+
+/*设置modal背景可用*/
+.modal-backdrop {
+    display:none;
+}
+.modal-open .modal {
+    width: 350px;
+	height:412px;
+    margin: 0 auto;
+}/*设置modal背景可用 结束*/
+
+/*调整modal大小*/
+.modal-dialog {
+    width: 350px;
+}
+
+
 @media screen and (min-width: 44.375em)
 {
 	.site-title {
