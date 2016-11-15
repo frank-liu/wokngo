@@ -1,3 +1,0 @@
-.plusicon_green{
-color: green;
-}

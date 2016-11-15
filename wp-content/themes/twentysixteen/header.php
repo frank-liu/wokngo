@@ -21,7 +21,8 @@
 	<?php wp_head(); ?>
 </head>
 <head>
-		
+		<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.2/jsgrid.min.css" />
+		<link type="text/css" rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.2/jsgrid-theme.min.css" />
 		<!-- for icon --> 
 		<link rel="stylesheet" href="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/fonts/font/style.css">
 		<!-- for customise style sheet -->
@@ -33,10 +34,16 @@
 		<script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.11.4/jquery-ui.min.js"></script>
 		<script src="http://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js"></script>
 		<script src="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/myjs.js" type="text/javascript"></script>
-		<script src="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/myjs.js" type="text/javascript"></script>
-		
+		 
 		<link type="text/css" rel="stylesheet" href="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/PrintArea/css/jquery.printarea.css" />
 		<script src="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/PrintArea/js/jquery.printarea.js" type="text/javascript"></script>
+		
+		<!--link type="text/css" rel="stylesheet" href="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/jsgrid-1.4.1/jsgrid.min.css" />
+	    <link type="text/css" rel="stylesheet" href="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/jsgrid-1.4.1/jsgrid-theme.min.css" />
+	    <script src="<?php echo get_site_url(); ?>/wp-content/themes/twentysixteen/js/jsgrid-1.4.1/jsgrid.min.js" type="text/javascript"></script-->
+		
+ 
+		<script type="text/javascript" src="https://cdnjs.cloudflare.com/ajax/libs/jsgrid/1.5.2/jsgrid.min.js"></script>
 	
 	</head>
 

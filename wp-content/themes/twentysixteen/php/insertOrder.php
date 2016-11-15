@@ -2,6 +2,10 @@
     require_once('../../../../wp-config.php');    
 	global $wpdb;
     $current_user = wp_get_current_user();
+	/* if(!($current_user->ID))
+	{
+		exit;
+	} */
 	
     $table = "wp_restaurant_orders";
 	
@@ -26,7 +30,7 @@
 			'buyer_house_no' =>  $_POST['house_no'],
 			'buyer_postcode' =>  $_POST['postcode'],			 
 			'telephone' => $_POST['phone'],			
-			'ord_dish' => serialize($_POST['order_entry']), //use serialize() to store it in a database at the end of the request.
+			'ord_dish' => json_encode($_POST['order_entry']), //use serialize() to store it in a database at the end of the request.
 			'ord_action' => $_POST['order_action'], // delivery, collection, sit-in 
 			'ord_status' => 'open',	// open, suspend, paid
 			'ord_operator' => $current_user->ID 			 	

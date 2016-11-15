@@ -21,7 +21,7 @@
     width: 2em;
     text-align: center;
 }
-
+.green{color:#4CAF50;}
 .plusicon_green{
 	float: right;
 	color: green;
@@ -50,19 +50,19 @@
 }
 
 
-/*Table number */
+/*Table number */ 
 #modal-table-num {
 		font-size: 1.5em;
 		margin: 0 auto;
 		width: 100%;
 		position: relative;
 	}
-.icon_button:hover{
+.icon_button:hover,.icon_button:focus{
 	background-color:transparent;
 }
-button:hover, button:focus, input[type="button"]:hover, input[type="button"]:focus, input[type="reset"]:hover, input[type="reset"]:focus, input[type="submit"]:hover, input[type="submit"]:focus {
+/* button:hover, button:focus, input[type="button"]:hover, input[type="button"]:focus, input[type="reset"]:hover, input[type="reset"]:focus, input[type="submit"]:hover, input[type="submit"]:focus {
     background: rgba(255, 255, 255, 0);
-}
+} */
 
 #buyer_name, #buyer_address, #buyer_phone{
 	font-family: Verdana, Geneva, sans-serif;

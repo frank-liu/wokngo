@@ -4,7 +4,8 @@ var deliveryCharge=2.5;//默认送餐费
 var address="";
 var sitin_enable=0; //座位单开单中，禁止其他下单方式。
 phpUrl = location.origin + "/wp-restaurant/wp-content/themes/twentysixteen/php/";
-console.log(phpUrl);
+
+
 /*-------------------------------------------------------------------------------------------*/
 $(function () {
 	//如何选择 
@@ -20,7 +21,347 @@ $(function () {
 		$(".widget-title").html('<a href="#">Order <span class="icon-shopping-bag"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
 	}
 	
+	//按tab  显示profile photo href="#menu7"
+	$('a[href="#menu3"]').on('shown.bs.tab', function (e) {
+	   $("#jsGridHistory").jsGrid("refresh");
+	});
 });
+
+var records_raw=[];//保存从数据库中获取的原始数据
+$().ready(function () {
+	
+	/********************************************************************Tab3 grid 历史纪录 *****************************************************************************/
+	
+	$("#jsGridHistory").jsGrid({
+		height : "auto",
+		width : "100%",
+
+		filtering: false,
+		sorting : true,
+		//editing: true,
+		inserting: false,
+		/**/
+		autoload : true,
+		pagerContainer : "#externalPagerHistory",
+		paging : true,
+		//pageLoading: true,
+		pageSize : 8,
+		pageIndex : 1,
+		pageButtonCount : 5,
+		/**/
+		rowClick: function(args) { 
+
+			//console.log(args.item.OrderID);
+			orderIdClicked=args.item.OrderID;
+			return args.item.OrderID;
+		},
+
+		deleteConfirm : function (item) {
+			 
+			var msg="The entry ID: \n" +"#"+ item.id + ", " + item.date + "," + item.shop_name + ", " + item.title + ", " + item.display_name +  "\n"
+			+ "will be DELETED. \n Are you sure?";
+			var deleteFlag=0;
+			var tb="wp_shop_cashflow";
+			var answer=confirm(msg);
+			if (answer==true)
+			{
+				//php delete a row in table in db				
+				$.ajax({
+					type: "POST",
+					url: phpUrl+"deleteData.php",  
+					data: {
+						id: item.id,
+						table: tb
+					}
+					//dataType: "json" //如果没有返回值，就不要写datatype
+				})
+				.done(function(data) {	
+					deleteFlag=1;//表明已删除	
+					
+					console.log("delete done!");
+					return ("The entry has been Deleted.");
+				})
+				.fail(function(xhr, status, error)
+				{
+					
+					console.log("cannot delete  in db");												 
+					console.log(xhr.responseText);
+					console.log(status);
+					console.log(error);
+				});	
+			    
+				 
+			}
+			else
+			{
+				location.reload(false);//刷新页面
+				return ("Canceled. Nothing happened.") ;
+			}			
+		},
+	 
+		//db below here----------------------------
+		controller : {
+			loadData : function () {
+				var d = $.Deferred();
+				var records=[];//保存从数据库中获取的原始数据
+				
+				$.ajax({
+					 
+					url : phpUrl+"getData.php", // read  
+					dataType: "json"
+				})
+				.done(function (response) {
+				 
+					response.sort(function(a,b){
+						var aId = a.id ;
+						var bId = b.id; 						
+						return ((aId < bId) ? -1 : ((aId > bId) ? 1 : 0)); //按 entry ID 逆序排序。这样显示出来是降序的。
+									
+					});
+					
+					var i = response.length;
+				 					
+					$(response).each(function () {
+						var r = response[--i]; //one entry//
+						console.log("r: "+r);					
+						 				
+						var row2 = {
+							"id": r.id,
+							"date" : r.date,
+							"time": r.time,							
+							"order_id" : r.order_id,
+							"buyer_name" : r.buyer_name,
+							"buyer_house_no" : r.buyer_house_no,
+							"buyer_postcode" : r.buyer_postcode,
+							"ord_dish_raw": r.ord_dish,
+							"ord_dish" : function(){								
+								return $('<span>')
+								.attr('id',r.id)
+								.attr('class',"icon-th-menu")
+								.css('font-size','1.2em')
+								.on('click', function () {
+									//console.log(r.ord_dish);
+									var dishDetails='';									
+									dishEntry= $.parseJSON( r.ord_dish );
+									$(dishEntry).each(function(i){
+										dishDetails += dishEntry[i].dish_qty  + " x "
+											+ dishEntry[i].dish_name + "  £"
+											+ dishEntry[i].dish_price + "\n\n";
+									});
+									alert(dishDetails);
+								});
+							
+							}, 
+							"telephone" : r.telephone,								
+							"ord_action" : function(){
+								if(r.ord_action==="delivery")
+								{
+									return '<span class="icon-truck" style="color:#0a7fe4;"></span>';
+								}
+								if(r.ord_action==="collection")
+								{
+									return '<span class="icon-shopping-bag" style="color:#101010;"></span>';
+								}
+								if(r.ord_action==="sitin")
+								{
+									return '<span class="icon-spoon-knife green"  ></span>';
+								}
+								
+							},
+							// r.ord_status: 完成，已付款，正在做
+							"ord_status" : function(){
+								if(r.ord_status==="0")//正在做
+								{
+									return '<img style="margin: 0 auto;" width="45%" height="45%" class="img-responsive"  src="'+ location.origin +'/wp-restaurant/wp-content/uploads/2016/11/Preloader_4.gif">';
+								}
+								if(r.ord_status==="1")//完成 但未付款
+								{
+									return '<span class="icon-checkmark green" style="font-size:1.2em;"></span>';
+								}
+								if(r.ord_status==="2")//已付款
+								{
+									return '<span class="icon-coin-pound" style="font-size:1.5em;color:#b99427;"></span>';
+								}
+								
+							},
+							"ord_operator" : r.ord_operator							 
+							};
+							
+						records.push(row2); 
+					});
+					records_raw=records;
+					d.resolve(records);					
+				})
+				.fail(function(){
+					console.log("jsGrid db load data fail.");
+				});
+				return d.promise();
+			}
+		},
+		//db above ----------------------------
+
+		fields : [
+			{
+				name : "ord_status",
+				title: "Status",
+				type : "text",
+				align : "center",
+				autosearch : true,
+				sorting : true,
+				
+				width : "auto"
+			}, 
+			{
+				name : "order_id", // 对应数组row中的index
+				title : "Order ID",
+				type : "text",
+				align : "center",
+				filtering : false,
+				sorting : true,				
+				width : "auto"				
+			}, 
+			{
+				name : "buyer_name", // 对应数组row中的index
+				title : "Name",
+				type : "text",
+				align : "center",
+				filtering : false,
+				sorting : true,
+				width : "auto"
+				
+			}, 
+			{
+				name : "buyer_house_no", 
+				title : "House NO.",
+				type : "text",
+				align : "center",				 
+				filtering : false,
+				sorting : false,
+				width : "auto"
+				
+			},
+			{
+				name : "buyer_postcode", //name对应数据库中字段
+				title: "Postcode",
+				type : "text",
+				align : "center",
+				
+				autosearch : true,
+				sorting : true,
+				width : "auto"
+			},	
+				 
+			{
+				name : "telephone",
+				title: "Phone",
+				type : "text",
+				align : "center",
+				autosearch : true,
+				sorting : false,
+				
+				width : "auto"
+			},			
+			{
+				name : "ord_action",
+				title: "Type",
+				type : "text",
+				align : "center",
+				
+				autosearch : true,
+				sorting : false,
+				width : "auto"
+			}, 
+		
+			/* {
+				name : "ord_operator",
+				title: "Operator",
+				type : "text",
+				align : "center",
+				autosearch : true,
+				sorting : false,
+				
+				width : "auto"
+			}, */
+			{
+				name : "ord_dish",
+				title : "Detail",
+				type : "text",
+				align : "center",
+				filtering : false,
+				sorting : false,				
+				width : "auto"
+			},	
+			{
+				type : "control",
+				editButton : false,
+				deleteButton : true,//为了展示，先暂时关闭
+				//deleteButton : false,//为了展示，先暂时关闭
+				clearFilterButton : false,
+				modeSwitchButton : false,
+				width : "auto",
+
+				headerTemplate : function () {
+					//return $("<button>").attr("type", "button").attr("class","btn-css plus").text("+")
+					return $("<span/>").attr("class", "icon-plus") //Tab1
+					.css({
+						'font-size' : "1em",
+						'color' : "#4CAF50" //it's green
+					}).hover(
+						function () {
+						$(this).css({
+							'font-size' : "1.2em",
+							'color' : "#00cc00" //it's green
+						});
+					},
+						function () {
+						$(this).css({
+							'font-size' : "1em",
+							'color' : "#4CAF50" //it's green
+						});
+					}).on("click", function () {
+						$("#dialog-form").dialog().dialog("open");
+						showDetailsDialog("Add", {});
+					});
+				}
+			}
+				
+
+		]
+
+	});
+		
+/****************************************************************************Tab2 grid end****************************************************************************/
+	
+});
+
+//显示order detail
+function showDetail() //id 已经是orde在数据库中的id了，直接用。
+{
+	 
+	console.log(records_raw);
+	console.log('this.id');
+	console.log(this.id);
+	var dishEntry= '';
+	var dishDetails='';
+	$(records_raw).each(function(index)
+	{
+		if(records_raw[index].id===(this).id)
+		{	
+			console.log("=="+(this).id);
+			console.log(records_raw[index].ord_dish_raw);
+			
+			dishEntry= $.parseJSON( records_raw[index].ord_dish_raw );
+			$(dishEntry).each(function(i){
+				dishDetails += dishEntry[i].dish_qty  + " x "
+					+ dishEntry[i].dish_name + "  £"
+					+ dishEntry[i].dish_price + "\n\n";
+			});
+			return false;
+		}
+		
+	});
+	alert(dishDetails);
+}
 
 //显示送餐/自取图标到侧边栏的order后面
 function set_order_action_icon( )
@@ -225,7 +566,7 @@ function getAddress()
 //添加Check out 按钮到侧边栏order底部
 function addCheckout()
 {
-	var btn1='<button  id="ordSubmit" onclick="orderSubmit()" type="button" class="btn btn-primary btn-xs">Submit</button>';
+	var btn1='<button  id="ordSubmit" onclick="orderSubmit()" type="button" class="btn btn-primary btn-xs">Save</button>';
 	var btn2='<button  id="checkOutBtn" onclick="printOrder()" type="button" class="btn btn-success btn-xs">Check Out</button>';
 	//var checkOut='<br/><div id="checkOut" class="row">'+ btn + '</div>';
 	var checkOut='<br/><div class="row">'
