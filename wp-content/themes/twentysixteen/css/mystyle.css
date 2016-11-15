@@ -44,11 +44,19 @@
 	background-color:transparent;
 }
 /*sider的结账按钮*/
-#checkOutBtn{
+#checkOutBtn,#previewBtn,#ordSubmit{
 	width: 100%;
     font-size: 0.9em;
 }
 
+
+/*Table number */
+#modal-table-num {
+		font-size: 1.5em;
+		margin: 0 auto;
+		width: 100%;
+		position: relative;
+	}
 .icon_button:hover{
 	background-color:transparent;
 }
@@ -61,7 +69,14 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 	font-size; 1.3em;
 	font-weight:600;
 }
-
+/*空白单是显示的图*/
+.emptyOrd{
+    font-size: 5em;
+    color: #eee;
+    position: absolute;
+    z-index: 0;
+    padding-left: 8px;
+}
 /*使桌子变灰*/
 .tableimg {
     -webkit-filter: grayscale(100%); /* Safari 6.0 - 9.0 */
@@ -165,6 +180,31 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 	.col-sm-1, .col-xs-1 { 
 		width:8.33333333% !important;
 	}
+	/*offset*/
+	.col-sm-offset-1 {
+    margin-left: 8.33333333%;
+	}
+	.col-sm-offset-2 {
+    margin-left: 16.66666667%;
+	}
+	.col-sm-offset-3 {
+    margin-left: 25%;
+	}
+	.col-sm-offset-4 {
+    margin-left: 33.33333333%;
+	}
+	.col-sm-offset-5 {
+    margin-left: 41.66666667%%;
+	}
+	.col-sm-offset-6 {
+    margin-left: 50%;
+	}
+	.col-sm-offset-7 {
+    margin-left: 58.33333333%;
+	}
+	.col-sm-offset-8 {
+    margin-left: 66.66666667%;
+	}
 	  
 	.col-sm-1,
 	.col-sm-2,
@@ -192,9 +232,9 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 	.col-xs-12 {
 	float: left !important;
 	}
-
-	body {
-		margin: 0;
+	 
+	body,#myModal,.modal-content {
+		margin: 0!important;
 		padding 0 !important;
 		/* width: 1200px;
 		min-width: 768px; */
@@ -202,7 +242,24 @@ button:hover, button:focus, input[type="button"]:hover, input[type="button"]:foc
 		/* min-width: 768px; */
 		
 	}
-
+	#myModal {
+        position: absolute;
+        padding: 0;
+        margin: 0;
+        left: 0;
+        top: 0;
+    }
+	#modal-table-orders{
+		padding:0px 5px;
+		margin: 1px 2px;
+	}
+	#modal-table-num {
+		font-size: 1.5em;
+		margin: 0 auto;
+		width: 100%;
+		position: relative;
+	}
+	
 	.container {
 		/* width: auto;
 		min-width: 750px; */

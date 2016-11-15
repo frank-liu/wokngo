@@ -1,28 +1,58 @@
 var entry=[];//全局变量，保存每一单的餐名和价格
+var sitin_entry=[];//全局变量，保存每1张桌子的餐名和价格
 var deliveryCharge=2.5;//默认送餐费
 var address="";
 var sitin_enable=0; //座位单开单中，禁止其他下单方式。
-
+phpUrl = location.origin + "/wp-restaurant/wp-content/themes/twentysixteen/php/";
+console.log(phpUrl);
+/*-------------------------------------------------------------------------------------------*/
 $(function () {
-	//alert("occcc.");
+	//如何选择 
+	//$(".widget-title>a").text("Order ("+ $( "#order_action option:selected" ).text() +")");
+	
+	//页面初次加载时，显示送餐icon
+	if($("#order_action option:selected").val()==='1')
+	{
+		$(".widget-title").html('<a href="#">Order <span class="icon-truck"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+	if($("#order_action option:selected").val()==='2')
+	{
+		$(".widget-title").html('<a href="#">Order <span class="icon-shopping-bag"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+	
+});
+
+//显示送餐/自取图标到侧边栏的order后面
+function set_order_action_icon( )
+{
+	//console.log($("#order_action").val());
+	if($("#order_action").val()==='1')
+	{
+		$(".widget-title").html('<a href="#">Order <span class="icon-truck"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+	if($("#order_action").val()==='2')
+	{
+		$(".widget-title").html('<a href="#">Order <span class="icon-shopping-bag"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+}
+
+//生成order ID
+function newOrderId(){
 	var dt = new Date();
 	var time = dt.toISOString();   
 	var orderID='<br/><span id="orderID" style="text-align:right;font-size:0.7em;" class="hidden"> #'+time+'</span>';
 	$(".widget-title a:last").append(orderID); 
-	
-	
+	return time;//返回值类似：2016-11-14T00:17:37.620Z
+}
 
-});
-
-function addOrder(title,dishPrice)
-{
-	
-		//先显示order ID
-		$("#orderID").attr('class',''); 	 
+//点击 搜索结果后面的 plus icon 的动作
+function addOrder(id,title,dishPrice)
+{ 
 		var price=parseFloat((dishPrice).replace('£',''));
 		
 		//这里要把title存入一个数组，以判断将来有没有重复的单，如果有，合并，数量+1.
 		var row={
+			'dish_id':id,
 			'dish_name':title,
 			'dish_qty':1,
 			'dish_price':price,
@@ -49,9 +79,9 @@ function addOrder(title,dishPrice)
 		
 		//打印前让我先看看order变量里都有啥
 		console.log("打印前让我先看看变量里都有啥: ");
-		console.log(entry);
+		console.log(entry); 
 		
-	if(sitin_enable===0)//没有座位单的情况，订单添加到侧边栏。
+	if(sitin_enable===0)// takeaway 或 phone order，订单添加到侧边栏。
 	{
 		$("#sideer_order_title").attr('class','row');		
 		$("#order_cart").empty();
@@ -60,7 +90,7 @@ function addOrder(title,dishPrice)
 	else if(sitin_enable===1)//座位单开单中，订单添加到Modal中。
 	{
 		$("#modal-table-orders").empty();
-		$("#modal-table-orders").append(orderEntry(entry)).append('<hr/>').append(delivery()).append(totalPrice(entry)).append(addCheckout());
+		$("#modal-table-orders").append(orderEntry(entry)).append('<hr/>').append(totalPrice(entry)).append(addCheckoutSitin()); //不需要delivery因为是sit-in
 	}
 	
 	
@@ -72,6 +102,7 @@ function addOrder(title,dishPrice)
 //生成1行order记录到sider
 function orderEntry(entry)
 {
+	$("#waiting_pic").css('display','none');//隐藏 等待动画
 	var dishEntry = '';
 	$(entry).each(function(index){
 		if(index%2===0)
@@ -191,31 +222,73 @@ function getAddress()
 }
 
  
-//添加Check out 按钮到order底部
+//添加Check out 按钮到侧边栏order底部
 function addCheckout()
 {
-	var btn='<button  id="checkOutBtn" onclick="printOrder()" type="button" class="btn btn-success btn-xs">Check Out</button>';
-	var checkOut='<br/><div id="checkOut" class="row">'+ btn + '</div>';
-	
-	console.log("houseNo: "+$("#houseNo").val());
-	
+	var btn1='<button  id="ordSubmit" onclick="orderSubmit()" type="button" class="btn btn-primary btn-xs">Submit</button>';
+	var btn2='<button  id="checkOutBtn" onclick="printOrder()" type="button" class="btn btn-success btn-xs">Check Out</button>';
+	//var checkOut='<br/><div id="checkOut" class="row">'+ btn + '</div>';
+	var checkOut='<br/><div class="row">'
+			+ '<div class="col-sm-6">'
+			+ btn1
+			+ '</div>'	
+			+ '<div id="checkOut" class="col-sm-6">'
+			+ btn2
+			+ '</div>'	
+		+ '</div>';
+		
+	return checkOut;
+}
+
+
+//添加Check out 按钮到Modal 座位单order底部
+function addCheckoutSitin()
+{
+	var btn1='<button  id="previewBtn" onclick="printSitinOrder()" type="button" class="btn btn-primary btn-xs">Preview</button>';
+	var btn2='<button  id="checkOutBtn" onclick="printSitinOrder()" type="button" class="btn btn-success btn-xs">Check Out</button>';
+	var checkOut='<br/><div class="row">'
+			+ '<div class="col-sm-6">'
+			+ btn1
+			+ '</div>'	
+			+ '<div id="checkOut" class="col-sm-6">'
+			+ btn2
+			+ '</div>'	
+		+ '</div>';
 	return checkOut;
 }
 
    
 //打印sider的订单
 function printOrder()
-{
-	
+{	
 	if(validation()===true)
 	{
+		//mark as finished in db
+		
 		$("#enhancedtextwidget-2").printArea();
 		//打印完之后，清空变量	
 		entry=[];
 		deliveryCharge=2.5;//默认送餐费
 	}
-	
-	
+}
+
+//creat sitin order id
+function newOrderIdSitin()
+{
+	var dt = new Date();
+	var time = dt.toISOString();   
+	var orderID='<br/><div class="col-sm-10 col-sm-offset-1">Order ID: #'+time+'</div>';
+	return orderID;
+}
+
+//打印Modal的Sitin订单
+function printSitinOrder()
+{
+	//$("#sitinOrderID").empty();
+	$("#sitinOrderID").append(newOrderIdSitin());	
+	$("#myModal").printArea();
+	//打印完之后，清空变量	??????
+	entry=[];	
 }
 
 //检查客人地址电话是否填写完整
@@ -239,6 +312,8 @@ function validation()
 function table_checkout(clicked)
 {
 	sitin_enable=1;
+	$(".widget-title").html('<a href="#">Order <span class="icon-shop"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	
 	$(clicked).css('filter','grayscale(0%)');//翻桌变亮
 	$(clicked).css('-webkit-filter', 'grayscale(0%)');//翻桌变亮 /* Safari 6.0 - 9.0 */
 	var tableNO=$(clicked).siblings().text();//桌号
@@ -247,7 +322,36 @@ function table_checkout(clicked)
 	});
 	$('#myModal').modal('show');
 	 
-	$('#modal-table-num').text(tableNO);
+	$('#modal-table-num').text("Tabel: "+tableNO);
 	
 	//sitin_enable=0; //座位单开单完毕。这个要写在close中
+}
+
+/*----------------------------------------------------------------------------------数据库访问函数-----------------------------------------------------------------*/
+
+//提交单到数据库
+function orderSubmit()
+{
+	var orderId = newOrderId();//为此单创建order ID
+	$("#orderID").attr('class',''); //显示order id，默认是hidden
+		
+	$.ajax({
+		type: "POST",
+		url: phpUrl+'insertOrder.php',
+		data:{'order_id':orderId,
+			'order_action': $("#order_action option:selected").text(),
+			'house_no': $("#houseNo").val(),
+			'postcode': $("#postcode").val(),
+			'customer_name': $("#customer_name").val(),
+			'phone': $("#phone").val(),
+			'order_entry':entry
+			},
+		dataType: 'json'
+	})
+	.done(function(data){
+		console.log(data);
+	})
+	.fail(function(data){
+		console.log(data);
+	});
 }

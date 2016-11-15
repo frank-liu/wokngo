@@ -31,16 +31,24 @@ get_header(); ?>
 			<div class="row"> 
 			<form class="form-class">
 				<div class="col-sm-2"> 
+				<select class="form-control" id="order_action" onclick="set_order_action_icon()" name="order_action" style="text-transform: capitalize;" required>								
+					<?php $gr = ($wpdb->get_results("SELECT * FROM wp_restaurant_order_action ")); ?>
+					<?php foreach ( $gr as $val ) : ?>
+					<option value="<?php echo $val->id?>"><?php echo $val->order_action?></option>
+					<?php endforeach; ?>								 
+				</select>
+				</div>
+				<div class="col-sm-2"> 
 				<input id="houseNo" class="form-control" placeholder="House No." required >
 				</div>	
-				<div class="col-sm-3"> 
+				<div class="col-sm-2"> 
 				<input id="postcode" class="form-control" placeholder="Postcode" required >
 				</div>	
-				<div class="col-sm-3"> 
+				<div class="col-sm-2"> 
 				<input id="customer_name" class="form-control" placeholder="Name"  required>
 				</div>
 				<div class="col-sm-3"> 
-				<input id="phone" class="form-control" placeholder="Phone" required>
+				<input id="phone" type="number" class="form-control" placeholder="Phone" required>
 				</div>	
 				
 				<div class="col-sm-1"> 
@@ -52,7 +60,8 @@ get_header(); ?>
 			<?php echo do_shortcode('[wpdreams_ajaxsearchlite]'); //ajax search box ?>
 		<?php endif;?>
 		 
-		</main><!-- .site-main -->
+		</main><!-- .site-main -->  
+		
 		<!--桌子区--->
 		<?php for ($row = 1; $row <= 3; $row++) { ?>
 		<div class="row">
@@ -66,7 +75,7 @@ get_header(); ?>
 			?>
 		</div><!--桌子区 结束 --->
 		
-		<!-- Modal -->
+		<!-- Modal Popup-->
 		<div class="modal fade" id="myModal" role="dialog" data-keyboard="false" data-backdrop="static" style="width:350px;">
 			<div class="modal-dialog">
 			
@@ -74,23 +83,25 @@ get_header(); ?>
 			  <div class="modal-content">
 				<div class="modal-header">
 				  <button type="button" class="close" data-dismiss="modal">&times;</button>
-				  <div class="row">
-					<div class="col-sm-2 col-sm-offset-5">
-						<span id="modal-table-num" class="table_label" style="margin:0 0;"></span>
+				  <div class="row"> <!--桌牌号码-->
+					<div class="col-sm-6 col-sm-offset-3">
+						<div id="modal-table-num" class="table_label" style="margin:0 0;width:auto;"></div>
 					</div>
 				  </div>
 				</div>
-				<div  class="modal-body">				  
-					<div id="modal-table-orders" class="row">
+				<div class="modal-body" >				  
+					<div id="modal-table-orders" class="row" style="padding:0px 8px;margin: 1px 2px;">
 					
 					</div>
-					<div id="modal-table-total" class="row">
+					<div id="modal-table-total" class="row" style="padding:0px 8px;">
 						
 					</div>
 				</div>
-				<div class="modal-footer">
-				  <button type="button" class="btn btn-default" data-dismiss="modal">Check Out</button>
+				
+				<!--button type="button" class="btn btn-default" data-dismiss="modal">Check Out</button-->
+				<div id="sitinOrderID" class="row">						
 				</div>
+				
 			  </div><!-- Modal content end -->
 			  
 			</div>

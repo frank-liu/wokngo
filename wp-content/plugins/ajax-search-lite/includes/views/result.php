@@ -56,7 +56,7 @@ defined('ABSPATH') or die("You can't access this file directly.");
 						$price		 = price_format( $raw_price );
 				?>
                 <?php if ($s_options['resultareaclickable'] == 1): ?>
-                    <span class='overlap'><button class="icon_button" style="width:30%;height:100%;" onclick="return addOrder('<?php echo $r->title; ?>','<?php echo $price; ?>')"><span class="icon-plus-alt plusicon_green" ></span></button> </span>
+                    <span class='overlap'><button class="icon_button" style="width:30%;height:100%;" onclick="return addOrder('<?php echo $r->id; ?>','<?php echo $r->title; ?>','<?php echo $price; ?>')"><span class="icon-plus-alt plusicon_green" ></span></button> </span>
                 <?php endif; ?>
             </a>
 		</h3>
