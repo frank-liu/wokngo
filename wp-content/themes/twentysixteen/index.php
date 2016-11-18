@@ -87,6 +87,27 @@ get_header(); ?>
 		
 		<div id="menu3" class="tab-pane fade"><!-- 历史纪录--->
 			<br/>
+			<div class="row"> <!--过滤信息-->
+					<form class="form-class">
+						<div class="col-sm-3"> 
+							<select class="form-control" id="order_action_type" onclick="keywordReminder()" name="order_action_type" style="text-transform: capitalize;" required>								
+								<?php $gr = ($wpdb->get_results("SELECT * FROM wp_restaurant_order_action ")); ?>
+								<?php foreach ( $gr as $val ) : ?>
+								<option value="<?php echo $val->id?>"><?php echo $val->order_action?></option>
+								<?php endforeach; ?>								 
+							</select>
+						</div>
+					 
+						<div class="col-sm-8"> 
+							<input id="searchReminder" class="form-control" placeholder="" required>
+						</div>	
+						
+						<div class="col-sm-1">							 
+							<button class="btn btn-success btn-sm btn-block" onclick="return filterRecords()"><span class="icon-search "></span></button>
+						</div>				
+					</form>
+			</div>
+			<br/>
 			<div id="jsGridHistory"></div>
 			<div id="externalPagerHistory"></div>
 		</div><!--end of tab2: menu3 历史纪录--->

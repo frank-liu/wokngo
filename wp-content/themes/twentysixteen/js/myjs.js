@@ -22,17 +22,25 @@ $(function () {
 		$(".widget-title").html('<a href="#">Order <span class="icon-shopping-bag"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
 	}
 	
-	//按tab  显示profile photo href="#menu7"
+	//按tab  显示profile photo href="#menu3"
 	$('a[href="#menu3"]').on('shown.bs.tab', function (e) {
 	   $("#jsGridHistory").jsGrid("refresh");
+	});
+	
+	//按tab  显示profile photo href="#menu2"
+	$('a[href="#menu2"]').on('shown.bs.tab', function (e) {
+	   $("#jsGridSitin").jsGrid("refresh");
 	});
 });
 
 var records_raw=[];//保存从数据库中获取的原始数据
 $().ready(function () {
 	
-	/********************************************************************Tab3 grid 历史纪录 *****************************************************************************/
-	 
+	/******************************************************************** Sit-in 纪录 *****************************************************************************/
+		
+	/**************************************************************************** Sit-in grid end****************************************************************************/
+	
+	/******************************************************************** History grid 历史纪录 *****************************************************************************/
 	$("#jsGridHistory").jsGrid({
 		height : "auto",
 		width : "100%",
@@ -103,7 +111,8 @@ $().ready(function () {
 								});
 							
 							}, 
-							"telephone" : r.telephone,								
+							"telephone" : r.telephone,
+							"ord_action_raw" : r.ord_action,							
 							"ord_action" : function(){
 								if(r.ord_action==="delivery")
 								{
@@ -113,7 +122,7 @@ $().ready(function () {
 								{
 									return '<span class="icon-shopping-bag" style="color:#101010;"></span>';
 								}
-								if(r.ord_action==="sitin")
+								if(r.ord_action==="sit-in")
 								{
 									return '<span class="icon-spoon-knife green"  ></span>';
 								}
@@ -153,6 +162,7 @@ $().ready(function () {
 						records.push(row2); 
 					});
 					records_raw=records;
+					console.log(records_raw);
 					d.resolve(records);					
 				})
 				.fail(function(){
@@ -288,53 +298,116 @@ $().ready(function () {
 
 	});
 		
-/****************************************************************************Tab2 grid end****************************************************************************/
+	/**************************************************************************** History grid end****************************************************************************/
 	
 });
 
-/* function showOrderDetails(r)
+//根据关键词过滤history表的内容  
+function filterRecords()
 {
-	var dishDetails='';									
-	dishEntry= $.parseJSON( r.ord_dish );
-	$(dishEntry).each(function(i){
-		dishDetails += dishEntry[i].dish_qty  + " x "
-		+ dishEntry[i].dish_name + "  £"
-		+ dishEntry[i].dish_price + "\n\n";
-	});
+	//剪裁record数组，使它符合filter条件
+	records_filtered=records_raw; 
+	
+	keyword=$("#searchReminder").val();
+	 
+	
+	filters=
+	{
+		'field':$("#order_action_type").val(),//类型判断delivery, collection, sit-in?
+		'buyer_postcode': keyword,
+		'buyer_name': keyword
 
-	if(r.ord_action==='delivery')
+	};
+	
+	//过滤出符合条件的数组
+	records_filtered=array_filtered(records_filtered,filters);
+	
+	//加载records_filtered到表格#jsGrid	
+	$("#jsGridHistory").jsGrid({
+	/* 	height: "auto",
+		width: "100%",
+		sorting: true,
+		paging: false,
+		autoload: true, */
+		controller: {
+			loadData: function(){
+				var records_filtered_desc_id = records_filtered;
+				records_filtered_desc_id.sort(function(a,b){
+					var aId = a.id ;
+					var bId = b.id; 						
+					return ((aId < bId) ? 1 : ((aId > bId) ? -1 : 0)); //逆序排序	
+				});
+				return records_filtered_desc_id;
+			}			 
+		}		
+	});
+	
+	return false;//防止提交表格。不要写成true
+}
+
+//提取符合条件的数据
+function array_filtered(data_copy,filters)
+{	
+	data_filtered=[];
+	
+	for(i=0;i<data_copy.length;i++)
 	{
-		orderAction='<span class="icon-truck"></span>';
-	}
-	else if(r.ord_action==='collection')
-	{
-		orderAction='<span class="icon-shopping-bag"></span>';
-	}
-	else if(r.ord_action==='sitin')
-	{
-		orderAction='<span class="icon-spoon-knife"></span>';
-	}
-	var header='<div class="modal-header">'
-			+'<button type="button" class="close" data-dismiss="modal">&times;</button>'
-			+'<div class="row"> <!--桌牌号码-->'
-				+'<div class="col-sm-6 col-sm-offset-3">'
-					+ orderAction +' Order NO.:# '+ r.ord_id					
-				+'</div>'
-			+'</div>'
-		+'</div>';
+		 
+		//console.log( data_copy[i].ord_action);
+		 
+		var re1 = new RegExp(filters.buyer_postcode,"gi"); 
+		var re2 = new RegExp(filters.buyer_name,"gi");
 		
-	var body='<div class="modal-body" >'
-			+'<div id="modal-buyer-info" class="row" style="padding:0px 8px;margin: 1px 2px;">'
-						
-			+'</div>'
-			+'<div id="modal-table-orders" class="row" style="padding:0px 8px;margin: 1px 2px;">'
-						
-			+'</div>'
-			+'<div id="modal-table-total" class="row" style="padding:0px 8px;">'
-							
-			+'</div>'
-		+'</div>';
-} */
+		if(filters.field==='3') //sit-in 类型
+		{
+			//remove all whiteSpace
+			if((data_copy[i].buyer_name.replace(/\s/g,'')).match(re2))
+			{
+				console.log(data_copy[i]);
+				data_filtered.push(data_copy[i]);
+			}
+			else{//没找到，则显示所有3类型的单
+				if(data_copy[i].ord_action_raw==="sit-in")
+				{
+					data_filtered.push(data_copy[i]);
+				}
+				
+			}
+		}
+		else if(filters.field==='2')
+		{ // collection 类型
+			//remove all whiteSpace
+			if((data_copy[i].buyer_postcode.replace(/\s/g,'')).match(re1))
+			{
+				console.log(data_copy[i]);
+				data_filtered.push(data_copy[i]);
+			}
+			else{//没找到，则显示所有2类型的单
+				if(data_copy[i].ord_action_raw==="collection")
+				{
+					data_filtered.push(data_copy[i]);
+				}				
+			}
+		}
+		else if(filters.field==='1')
+		{ // collection 类型
+			//remove all whiteSpace
+			if((data_copy[i].buyer_postcode.replace(/\s/g,'')).match(re1))
+			{
+				console.log(data_copy[i]);
+				data_filtered.push(data_copy[i]);
+			}
+			else{//没找到，则显示所有2类型的单
+				if(data_copy[i].ord_action_raw==="delivery")
+				{
+					data_filtered.push(data_copy[i]);
+				}				
+			}
+		}
+					
+	}
+	return data_filtered;
+}
 
 //History 页面的jsgrid 显示order detail 到sider
 function showDetail(r)
@@ -357,7 +430,7 @@ function showDetail(r)
 		$(".widget-title").html('<a href="#">Order <span class="icon-truck"></span></a>'); 
 		$("#order_cart").append(orderEntry(dishEntry)).append('<hr/>').append(delivery()).append(totalPrice(dishEntry)).append(addCheckout());
 	}
-	else if(r.ord_action === 'sitin')//座位单开单中，订单添加到Modal中。
+	else if(r.ord_action === 'sit-in')//座位单开单中，订单添加到Modal中。
 	{	
 		$(".widget-title").html('<a href="#">Order <span class="icon-spoon-knife"></span></a>'); // 
 		$("#order_cart").append(orderEntry(dishEntry)).append('<hr/>').append(serviceFee()).append(totalPrice(dishEntry)).append(addCheckout()); //不需要delivery因为是sit-in
@@ -381,7 +454,7 @@ function showDetail(r)
 	$("#buyer_phone").text(r.telephone);
  }
  
-//显示送餐/自取图标到侧边栏的order后面
+//显示送餐/自取图标到侧边栏的order标题后面
 function set_order_action_icon( )
 {
 	//console.log($("#order_action").val());
@@ -392,6 +465,36 @@ function set_order_action_icon( )
 	if($("#order_action").val()==='2')
 	{
 		$(".widget-title").html('<a href="#">Order <span class="icon-shopping-bag"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+	/* if($("#order_action").val()==='3')
+	{
+		$(".widget-title").html('<a href="#">Order <span class="icon-spoon-knife"></span></a>'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+		
+		//隐藏不必要的input
+		$("#houseNo").css('display','none');
+		$("#postcode").css('display','none');
+		$("#customer_name").css('display','none');
+		$("#phone").attr({'placeholder':'Table Number','readonly':'readonly'});
+		//延长跨度
+		
+	} */
+}
+
+//在History页面input提示信息
+function keywordReminder()
+{
+	//console.log($("#order_action").val());
+	if($("#order_action_type").val()==='1')
+	{
+		$("#searchReminder").attr('placeholder','Postcode'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+	if($("#order_action_type").val()==='2')
+	{
+		$("#searchReminder").attr('placeholder','Postcode');//重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
+	}
+	if($("#order_action_type").val()==='3')
+	{
+		$("#searchReminder").attr('placeholder','Table Number'); //重新设置 $(".widget-title") 内部元素，添加orderaction对应的icon
 	}
 }
 
