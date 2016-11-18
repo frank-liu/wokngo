@@ -1,6 +1,7 @@
 var entry=[];//全局变量，保存每一单的餐名和价格
 var sitin_entry=[];//全局变量，保存每1张桌子的餐名和价格
 var deliveryCharge=2.5;//默认送餐费
+var serviceCharge=2.0;//默认服务费
 var address="";
 var sitin_enable=0; //座位单开单中，禁止其他下单方式。
 phpUrl = location.origin + "/wp-restaurant/wp-content/themes/twentysixteen/php/";
@@ -31,7 +32,7 @@ var records_raw=[];//保存从数据库中获取的原始数据
 $().ready(function () {
 	
 	/********************************************************************Tab3 grid 历史纪录 *****************************************************************************/
-	
+	 
 	$("#jsGridHistory").jsGrid({
 		height : "auto",
 		width : "100%",
@@ -48,56 +49,14 @@ $().ready(function () {
 		pageSize : 8,
 		pageIndex : 1,
 		pageButtonCount : 5,
-		/**/
-		rowClick: function(args) { 
-
-			//console.log(args.item.OrderID);
-			orderIdClicked=args.item.OrderID;
-			return args.item.OrderID;
-		},
+		 
 
 		deleteConfirm : function (item) {
 			 
-			var msg="The entry ID: \n" +"#"+ item.id + ", " + item.date + "," + item.shop_name + ", " + item.title + ", " + item.display_name +  "\n"
-			+ "will be DELETED. \n Are you sure?";
-			var deleteFlag=0;
-			var tb="wp_shop_cashflow";
-			var answer=confirm(msg);
-			if (answer==true)
-			{
-				//php delete a row in table in db				
-				$.ajax({
-					type: "POST",
-					url: phpUrl+"deleteData.php",  
-					data: {
-						id: item.id,
-						table: tb
-					}
-					//dataType: "json" //如果没有返回值，就不要写datatype
-				})
-				.done(function(data) {	
-					deleteFlag=1;//表明已删除	
-					
-					console.log("delete done!");
-					return ("The entry has been Deleted.");
-				})
-				.fail(function(xhr, status, error)
-				{
-					
-					console.log("cannot delete  in db");												 
-					console.log(xhr.responseText);
-					console.log(status);
-					console.log(error);
-				});	
-			    
-				 
-			}
-			else
-			{
-				location.reload(false);//刷新页面
-				return ("Canceled. Nothing happened.") ;
-			}			
+			deleteRowById(item);//删除数据库中的记录
+						
 		},
+		 
 	 
 		//db below here----------------------------
 		controller : {
@@ -139,16 +98,8 @@ $().ready(function () {
 								.attr('id',r.id)
 								.attr('class',"icon-th-menu")
 								.css('font-size','1.2em')
-								.on('click', function () {
-									//console.log(r.ord_dish);
-									var dishDetails='';									
-									dishEntry= $.parseJSON( r.ord_dish );
-									$(dishEntry).each(function(i){
-										dishDetails += dishEntry[i].dish_qty  + " x "
-											+ dishEntry[i].dish_name + "  £"
-											+ dishEntry[i].dish_price + "\n\n";
-									});
-									alert(dishDetails);
+								.on('click', function () {								
+									showDetail(r);
 								});
 							
 							}, 
@@ -184,7 +135,19 @@ $().ready(function () {
 								}
 								
 							},
-							"ord_operator" : r.ord_operator							 
+							"ord_operator" : r.ord_operator
+							/* "operation": function(){
+								var id=r.id;
+								return $('<span>').attr("class", "icon-trash") //删除按钮
+										.css({
+											'font-size' : "1.2em",
+											'color': "red"
+										})
+										.on('click',function(){											 
+											deleteRowById(r); 
+											$("#jsGridHistory").jsGrid("deleteItem", item);
+										});
+								} */
 							};
 							
 						records.push(row2); 
@@ -291,36 +254,31 @@ $().ready(function () {
 				sorting : false,				
 				width : "auto"
 			},	
+			/* {
+				name : "operation",
+				title : "Action",
+				type : "text",
+				align : "center",
+				filtering : false,
+				sorting : false,				
+				width : "auto"
+			}, */
 			{
 				type : "control",
+				 
 				editButton : false,
-				deleteButton : true,//为了展示，先暂时关闭
+				deleteButton :  true,
 				//deleteButton : false,//为了展示，先暂时关闭
 				clearFilterButton : false,
 				modeSwitchButton : false,
 				width : "auto",
 
 				headerTemplate : function () {
-					//return $("<button>").attr("type", "button").attr("class","btn-css plus").text("+")
-					return $("<span/>").attr("class", "icon-plus") //Tab1
+					
+					return $("<span/>").attr("class", "icon-tools2") //Tab1
 					.css({
-						'font-size' : "1em",
-						'color' : "#4CAF50" //it's green
-					}).hover(
-						function () {
-						$(this).css({
-							'font-size' : "1.2em",
-							'color' : "#00cc00" //it's green
-						});
-					},
-						function () {
-						$(this).css({
-							'font-size' : "1em",
-							'color' : "#4CAF50" //it's green
-						});
-					}).on("click", function () {
-						$("#dialog-form").dialog().dialog("open");
-						showDetailsDialog("Add", {});
+						'font-size' : "1.5em",
+						'color' : "#101010"
 					});
 				}
 			}
@@ -334,35 +292,95 @@ $().ready(function () {
 	
 });
 
-//显示order detail
-function showDetail() //id 已经是orde在数据库中的id了，直接用。
+/* function showOrderDetails(r)
 {
-	 
-	console.log(records_raw);
-	console.log('this.id');
-	console.log(this.id);
-	var dishEntry= '';
-	var dishDetails='';
-	$(records_raw).each(function(index)
-	{
-		if(records_raw[index].id===(this).id)
-		{	
-			console.log("=="+(this).id);
-			console.log(records_raw[index].ord_dish_raw);
-			
-			dishEntry= $.parseJSON( records_raw[index].ord_dish_raw );
-			$(dishEntry).each(function(i){
-				dishDetails += dishEntry[i].dish_qty  + " x "
-					+ dishEntry[i].dish_name + "  £"
-					+ dishEntry[i].dish_price + "\n\n";
-			});
-			return false;
-		}
-		
+	var dishDetails='';									
+	dishEntry= $.parseJSON( r.ord_dish );
+	$(dishEntry).each(function(i){
+		dishDetails += dishEntry[i].dish_qty  + " x "
+		+ dishEntry[i].dish_name + "  £"
+		+ dishEntry[i].dish_price + "\n\n";
 	});
-	alert(dishDetails);
-}
 
+	if(r.ord_action==='delivery')
+	{
+		orderAction='<span class="icon-truck"></span>';
+	}
+	else if(r.ord_action==='collection')
+	{
+		orderAction='<span class="icon-shopping-bag"></span>';
+	}
+	else if(r.ord_action==='sitin')
+	{
+		orderAction='<span class="icon-spoon-knife"></span>';
+	}
+	var header='<div class="modal-header">'
+			+'<button type="button" class="close" data-dismiss="modal">&times;</button>'
+			+'<div class="row"> <!--桌牌号码-->'
+				+'<div class="col-sm-6 col-sm-offset-3">'
+					+ orderAction +' Order NO.:# '+ r.ord_id					
+				+'</div>'
+			+'</div>'
+		+'</div>';
+		
+	var body='<div class="modal-body" >'
+			+'<div id="modal-buyer-info" class="row" style="padding:0px 8px;margin: 1px 2px;">'
+						
+			+'</div>'
+			+'<div id="modal-table-orders" class="row" style="padding:0px 8px;margin: 1px 2px;">'
+						
+			+'</div>'
+			+'<div id="modal-table-total" class="row" style="padding:0px 8px;">'
+							
+			+'</div>'
+		+'</div>';
+} */
+
+//History 页面的jsgrid 显示order detail 到sider
+function showDetail(r)
+{
+	//这里要把title存入一个数组，以判断将来有没有重复的单，如果有，合并，数量+1.
+	dishEntry= $.parseJSON( r.ord_dish );
+	 
+	//打印前让我先看看order变量里都有啥
+	console.log("都有啥: ");
+	console.log(r); 
+	$("#waiting_pic").css('display','none');//隐藏 等待动画
+	$("#order_cart").empty();
+	$("#sideer_order_title").attr('class','row');	
+	buyerInfo(r);
+	console.log("都action: ");
+	console.log(r.ord_action); 	
+	
+	if(r.ord_action === 'delivery')// takeaway 或 phone order，订单添加到侧边栏。
+	{		 
+		$(".widget-title").html('<a href="#">Order <span class="icon-truck"></span></a>'); 
+		$("#order_cart").append(orderEntry(dishEntry)).append('<hr/>').append(delivery()).append(totalPrice(dishEntry)).append(addCheckout());
+	}
+	else if(r.ord_action === 'sitin')//座位单开单中，订单添加到Modal中。
+	{	
+		$(".widget-title").html('<a href="#">Order <span class="icon-spoon-knife"></span></a>'); // 
+		$("#order_cart").append(orderEntry(dishEntry)).append('<hr/>').append(serviceFee()).append(totalPrice(dishEntry)).append(addCheckout()); //不需要delivery因为是sit-in
+	}
+	else if(r.ord_action === 'collection')
+	{
+		$(".widget-title").html('<a href="#">Order <span class="icon-shopping-bag"></span></a>'); // 
+		$("#order_cart").append(orderEntry(dishEntry)).append('<hr/>').append(totalPrice(dishEntry)).append(addCheckout());
+	}
+}
+ 
+ //显示客户信息到title
+ function buyerInfo(r)
+ {
+	$("#iconUser").attr('class',"icon-user2 ");
+	$("#iconHome").attr('class',"icon-home3 ");
+	$("#iconPhone").attr('class',"icon-phone");
+		
+	$("#buyer_name").text(r.buyer_name);
+	$("#buyer_address").text(r.buyer_addr);
+	$("#buyer_phone").text(r.telephone);
+ }
+ 
 //显示送餐/自取图标到侧边栏的order后面
 function set_order_action_icon( )
 {
@@ -443,7 +461,7 @@ function addOrder(id,title,dishPrice)
 //生成1行order记录到sider
 function orderEntry(entry)
 {
-	$("#waiting_pic").css('display','none');//隐藏 等待动画
+	$("#waiting_pic").css('display','none');//隐藏 等待图标
 	var dishEntry = '';
 	$(entry).each(function(index){
 		if(index%2===0)
@@ -458,30 +476,73 @@ function orderEntry(entry)
 					'</div>\
 					<div class="col-sm-2" id="dishQty-'+index+'" onclick="entryEdit(this.id)" style="padding:0 0;text-align:center;">' + entry[index].dish_qty +
 					'</div>\
-					<div class="col-sm-3" style="text-align:right;">£' + entry[index].dish_price.toFixed(2) +
+					<div class="col-sm-3" style="text-align:right;">£' + parseFloat(entry[index].dish_price).toFixed(2) +
 					'</div></div>';
 	});
 	return dishEntry;
 } 
 
-//当点击每一条记录时，的操作。
+//当点击每一条记录时，询问删除还是修改？
 function entryAction(ele_id,index)
 {
-	console.log("element ID: "+ele_id+" , Index: "+ index);
-	var entryContent= $("#entry-"+index).text().replace(/\s+/g, ', ');//replace(/^\s+|\s+$/gm,'');
-	entryContent=entryContent.replace(/,/g, ' ');	
-	console.log(entryContent);
-	var r = confirm(entryContent+"\n\nPress [OK] to delete, or Press [Cancel] to Edit.\n请点击 [OK] 删除这条记录，或点击 [Cancel] 修改这条记录。");
-	if (r == true) 
+
+	/* if($("#"+ele_id).attr('contenteditable')=="undefined")
 	{
-		delete1Entry('entry-'+index);
-	} 
-	else 
-	{
-		$("#"+ele_id).attr('contenteditable',true);
-		$("#"+ele_id).focus();			
-	}
- 	
+		console.log("undefined3424");
+	} */		
+ 
+	bootbox.confirm({
+			message: "Delete or Edit ?",
+			buttons: {
+				confirm: {
+					label: '<span class="icon-trash"></span> Delete',
+					className: 'btn-danger '
+				},
+				cancel: {
+					label: '<span class="icon-document-edit"></span> Edit',
+					className: 'btn-success'
+				}
+			},
+			callback: function (result) {
+				console.log('This was logged in the callback: ' + result);
+				if (result == true) 
+				{
+					delete1Entry('entry-'+index);
+				} 
+				else 
+				{
+					bootbox.hideAll();
+					 
+					$("#"+ele_id).css('border',"1px solid red");
+					$("#"+ele_id).attr('contenteditable',true);
+					temp=$("#"+ele_id).html();
+					$("#"+ele_id).html(temp+'&nbsp;');
+					$("#"+ele_id).focus();
+					placeCaretAtEnd( document.getElementById(ele_id));	//focus at end of the text in div	
+				}
+			}
+	}); 	
+	 
+
+}
+
+//focus at end of text div
+function placeCaretAtEnd(el) {
+    el.focus();
+    if (typeof window.getSelection != "undefined"
+            && typeof document.createRange != "undefined") {
+        var range = document.createRange();
+        range.selectNodeContents(el);
+        range.collapse(false);
+        var sel = window.getSelection();
+        sel.removeAllRanges();
+        sel.addRange(range);
+    } else if (typeof document.body.createTextRange != "undefined") {
+        var textRange = document.body.createTextRange();
+        textRange.moveToElementText(el);
+        textRange.collapse(false);
+        textRange.select();
+    }
 }
 
 //当点击每一条记录时，修改操作。
@@ -502,7 +563,7 @@ function totalPrice(entry)
 	var sum = 0;
 	$(entry).each(function(index){
 		 
-		sum += entry[index].dish_price ;
+		sum += parseFloat(entry[index].dish_price) ;
 	});
 	var total='<div class="row">\
 						<div class="col-sm-4">' +
@@ -513,7 +574,7 @@ function totalPrice(entry)
 	return total;
 }
 
-//添加运费按钮到order底部
+//添加运费 到order底部
 function delivery()
 {
 	var deliveryFee='<div id="deliveryChargeRow" class="row">\
@@ -521,6 +582,18 @@ function delivery()
 						'</div>\
 						<div class="col-sm-4" style="text-align:center; ">Delivery: </div>\
 						<div class="col-sm-4" id="deliveryCharge" style="text-align:right; ">£'+deliveryCharge.toFixed(2)+'</div>\
+					</div>';
+	return deliveryFee;
+} 
+
+//添加服务费 到order底部
+function serviceFee()
+{
+	var deliveryFee='<div id="serviceRow" class="row">\
+						<div class="col-sm-4">' +
+						'</div>\
+						<div class="col-sm-4" style="text-align:center; ">Service Fee: </div>\
+						<div class="col-sm-4" id="deliveryCharge" style="text-align:right; ">£'+serviceCharge.toFixed(2)+'</div>\
 					</div>';
 	return deliveryFee;
 } 
@@ -683,6 +756,7 @@ function orderSubmit()
 			'order_action': $("#order_action option:selected").text(),
 			'house_no': $("#houseNo").val(),
 			'postcode': $("#postcode").val(),
+			'customer_address': $("#buyer_address").val(),
 			'customer_name': $("#customer_name").val(),
 			'phone': $("#phone").val(),
 			'order_entry':entry
@@ -695,4 +769,25 @@ function orderSubmit()
 	.fail(function(data){
 		console.log(data);
 	});
+}
+
+//删除DB中一条记录
+function deleteRowById(r){
+	 
+	$.ajax({
+		type: "POST",
+		url: phpUrl+'deleteRowById.php',
+		data:{'order_id':r.id,
+		'table':'wp_restaurant_orders'}
+	})
+	.done(function(r){
+		console.log("delete it");
+		$("#jsGridHistory").jsGrid("refresh");
+		console.log("refresh it");
+		 
+	})
+	.fail(function(){
+		console.log("cannot delete it.");
+	});
+	 
 }

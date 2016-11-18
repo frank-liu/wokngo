@@ -24,6 +24,7 @@ get_header(); ?>
 		<li><a data-toggle="tab" href="#menu3">History <span class="icon-history" style="font-size:1.7em"></span></a></li>
 		<li><a data-toggle="tab" href="#menu4">Help <span class="icon-question-circle" style="font-size:1.7em"></span></a></li>
 	</ul>
+	
 	<div class="tab-content">
 		<div id="home" class="tab-pane fade in active"><!--点餐页面tab-->
 				<br/>
@@ -76,6 +77,7 @@ get_header(); ?>
 				<?php }  ?> 
 			 
 		</div><!--end of tab1: #home--->
+		
 		<!--点餐页面tab 结束-->
 		<div id="menu2" class="tab-pane fade"><!--坐台--->
 			<br/>
@@ -97,34 +99,59 @@ get_header(); ?>
 
 <!-- Modal Popup-->
 <div class="modal fade" id="myModal" role="dialog" data-keyboard="false" data-backdrop="static" style="width:350px;">
-				<div class="modal-dialog">
+	<div class="modal-dialog">
 				
-				  <!-- Modal content-->
-				  <div class="modal-content">
-					<div class="modal-header">
-					  <button type="button" class="close" data-dismiss="modal">&times;</button>
-					  <div class="row"> <!--桌牌号码-->
-						<div class="col-sm-6 col-sm-offset-3">
-							<div id="modal-table-num" class="table_label" style="margin:0 0;width:auto;"></div>
-						</div>
-					  </div>
+	<!-- Modal content-->
+	<div class="modal-content">
+		<div class="modal-header">
+			<button type="button" class="close" data-dismiss="modal">&times;</button>
+				<div class="row"> <!--桌牌号码-->
+					<div class="col-sm-6 col-sm-offset-3">
+						<div id="modal-table-num" class="table_label" style="margin:0 0;width:auto;"></div>
 					</div>
-					<div class="modal-body" >				  
-						<div id="modal-table-orders" class="row" style="padding:0px 8px;margin: 1px 2px;">
-						
-						</div>
-						<div id="modal-table-total" class="row" style="padding:0px 8px;">
-							
-						</div>
-					</div>
-					
-					<!--button type="button" class="btn btn-default" data-dismiss="modal">Check Out</button-->
-					<div id="sitinOrderID" class="row">						
-					</div>
-					
-				  </div><!-- Modal content end -->
-				  
 				</div>
+		</div>
+		
+		<div class="modal-body" >				  
+			<div id="modal-table-orders" class="row" style="padding:0px 8px;margin: 1px 2px;">
+						
+			</div>
+			<div id="modal-table-total" class="row" style="padding:0px 8px;">
+							
+			</div>
+		</div>
+					
+		<!--button type="button" class="btn btn-default" data-dismiss="modal">Check Out</button-->
+		<div id="sitinOrderID" class="row">						
+		</div>
+					
+	</div><!-- .modal-content end -->		  
+	</div><!-- .modal-dialog end-->
+</div><!-- Modal end-->
+
+<!-- Modal Popup for order details-->
+<div class="modal fade" id="ModalOrderAction" role="dialog" data-keyboard="false" data-backdrop="static" style="width:350px;">
+	<div class="modal-dialog">
+				
+		<!-- Modal content-->
+		<div class="modal-content">
+			<div class="modal-header">
+				<button type="button" class="close" data-dismiss="modal">&times;</button>
+			</div>
+			
+			<div class="modal-body" >				  
+				<div id="modal-order-action" class="row">
+					<div class="col-sm-6">
+						<button  id="deleteBtn" onclick="function(){return 'delete';}" type="button" class="btn btn-danger btn-xs"><span class="icon-trash"></span>Delete</button>';
+					</div>	
+					<div class="col-sm-6">
+						<button  id="EditBtn"  onclick="function(){return 'edit';}" type="button" class="btn btn-success btn-xs"><span class="icon-document-edit"></span>Edit</button>';
+					</div>				
+				</div>			 
+			</div>	
+		</div><!-- .modal-content end -->
+	
+	</div><!-- .modal-dialog end-->
 </div><!-- Modal end-->
 <?php get_sidebar(); ?>
 <?php get_footer(); ?>

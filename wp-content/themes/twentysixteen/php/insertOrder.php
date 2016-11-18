@@ -29,6 +29,7 @@
 			'buyer_name' =>  $_POST['customer_name'],
 			'buyer_house_no' =>  $_POST['house_no'],
 			'buyer_postcode' =>  $_POST['postcode'],			 
+			'buyer_addr' =>  $_POST['house_no'].' '.$_POST['customer_address'],			 
 			'telephone' => $_POST['phone'],			
 			'ord_dish' => json_encode($_POST['order_entry']), //use serialize() to store it in a database at the end of the request.
 			'ord_action' => $_POST['order_action'], // delivery, collection, sit-in 

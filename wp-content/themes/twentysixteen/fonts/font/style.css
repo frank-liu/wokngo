@@ -1,10 +1,10 @@
 @font-face {
   font-family: 'icomoon';
-  src:  url('fonts/icomoon.eot?bud2e4');
-  src:  url('fonts/icomoon.eot?bud2e4#iefix') format('embedded-opentype'),
-    url('fonts/icomoon.ttf?bud2e4') format('truetype'),
-    url('fonts/icomoon.woff?bud2e4') format('woff'),
-    url('fonts/icomoon.svg?bud2e4#icomoon') format('svg');
+  src:  url('fonts/icomoon.eot?aqbrgi');
+  src:  url('fonts/icomoon.eot?aqbrgi#iefix') format('embedded-opentype'),
+    url('fonts/icomoon.ttf?aqbrgi') format('truetype'),
+    url('fonts/icomoon.woff?aqbrgi') format('woff'),
+    url('fonts/icomoon.svg?aqbrgi#icomoon') format('svg');
   font-weight: normal;
   font-style: normal;
 }
@@ -24,6 +24,9 @@
   -moz-osx-font-smoothing: grayscale;
 }
 
+.icon-tools2:before {
+  content: "\e91f";
+}
 .icon-one-finger-click:before {
   content: "\e91d";
 }
@@ -39,95 +42,8 @@
 .icon-inbox-document-text:before {
   content: "\e916";
 }
-.icon-wallet:before {
-  content: "\e900";
-}
-.icon-banknote:before {
-  content: "\e901";
-}
-.icon-shop:before {
-  content: "\e902";
-}
-.icon-shopping-bag:before {
-  content: "\e903";
-}
-.icon-playlist_add_check:before {
-  content: "\e904";
-}
-.icon-playlist_add:before {
-  content: "\e905";
-}
-.icon-presentation:before {
-  content: "\e906";
-}
-.icon-group_add:before {
-  content: "\e907";
-}
-.icon-hash:before {
-  content: "\e908";
-}
-.icon-sale:before {
-  content: "\e909";
-}
-.icon-hourglass-1:before {
-  content: "\e90a";
-}
-.icon-user4:before {
-  content: "\e90b";
-}
-.icon-product-hunt:before {
-  content: "\e90c";
-}
-.icon-th-menu:before {
-  content: "\e90d";
-}
-.icon-credit-card:before {
-  content: "\e93f";
-}
-.icon-calculator:before {
-  content: "\e940";
-}
-.icon-clock:before {
-  content: "\e94e";
-}
-.icon-clock2:before {
-  content: "\e94f";
-}
-.icon-calendar:before {
-  content: "\e953";
-}
-.icon-printer:before {
-  content: "\e954";
-}
-.icon-display2:before {
-  content: "\e956";
-}
-.icon-database2:before {
-  content: "\e964";
-}
-.icon-stats-dots:before {
-  content: "\e99b";
-}
-.icon-plus:before {
-  content: "\ea0a";
-}
-.icon-cross:before {
-  content: "\ea0f";
-}
-.icon-checkmark:before {
-  content: "\ea10";
-}
-.icon-exit:before {
-  content: "\ea14";
-}
-.icon-table:before {
-  content: "\ea70";
-}
-.icon-file-pdf:before {
-  content: "\eadf";
-}
-.icon-file-excel:before {
-  content: "\eae2";
+.icon-tools:before {
+  content: "\e91e";
 }
 .icon-plus-alt:before {
   content: "\e919";
@@ -269,6 +185,96 @@
 }
 .icon-spoon-knife:before {
   content: "\e9a3";
+}
+.icon-wallet:before {
+  content: "\e900";
+}
+.icon-banknote:before {
+  content: "\e901";
+}
+.icon-shop:before {
+  content: "\e902";
+}
+.icon-shopping-bag:before {
+  content: "\e903";
+}
+.icon-playlist_add_check:before {
+  content: "\e904";
+}
+.icon-playlist_add:before {
+  content: "\e905";
+}
+.icon-presentation:before {
+  content: "\e906";
+}
+.icon-group_add:before {
+  content: "\e907";
+}
+.icon-hash:before {
+  content: "\e908";
+}
+.icon-sale:before {
+  content: "\e909";
+}
+.icon-hourglass-1:before {
+  content: "\e90a";
+}
+.icon-user4:before {
+  content: "\e90b";
+}
+.icon-product-hunt:before {
+  content: "\e90c";
+}
+.icon-th-menu:before {
+  content: "\e90d";
+}
+.icon-credit-card:before {
+  content: "\e93f";
+}
+.icon-calculator:before {
+  content: "\e940";
+}
+.icon-clock:before {
+  content: "\e94e";
+}
+.icon-clock2:before {
+  content: "\e94f";
+}
+.icon-calendar:before {
+  content: "\e953";
+}
+.icon-printer:before {
+  content: "\e954";
+}
+.icon-display2:before {
+  content: "\e956";
+}
+.icon-database2:before {
+  content: "\e964";
+}
+.icon-stats-dots:before {
+  content: "\e99b";
+}
+.icon-plus:before {
+  content: "\ea0a";
+}
+.icon-cross:before {
+  content: "\ea0f";
+}
+.icon-checkmark:before {
+  content: "\ea10";
+}
+.icon-exit:before {
+  content: "\ea14";
+}
+.icon-table:before {
+  content: "\ea70";
+}
+.icon-file-pdf:before {
+  content: "\eadf";
+}
+.icon-file-excel:before {
+  content: "\eae2";
 }
 .icon-trash:before {
   content: "\e91c";

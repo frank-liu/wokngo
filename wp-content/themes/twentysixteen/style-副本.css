@@ -576,7 +576,7 @@ input {
 	line-height: normal;
 }
 
-/* button,
+button,
 button[disabled]:hover,
 button[disabled]:focus,
 input[type="button"],
@@ -598,9 +598,9 @@ input[type="submit"][disabled]:focus {
 	line-height: 1;
 	padding: 0.84375em 0.875em 0.78125em;
 	text-transform: uppercase;
-} */
+}
 
-/* button:hover,
+button:hover,
 button:focus,
 input[type="button"]:hover,
 input[type="button"]:focus,
@@ -617,7 +617,7 @@ input[type="reset"]:focus,
 input[type="submit"]:focus {
 	outline: thin dotted;
 	outline-offset: -4px;
-} */
+}
 
 input[type="text"],
 input[type="email"],
